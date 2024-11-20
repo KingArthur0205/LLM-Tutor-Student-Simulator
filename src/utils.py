@@ -1,4 +1,6 @@
 import re
+import csv
+import os
 
 student_system_prompt = """
 You are a physics student simulator that generates realistic responses to a Socratic physics tutor. Your responses should reflect the student profile defined in the configuration tags and demonstrate authentic learning behaviors. Please maintain this persona throughout the conversation.
@@ -379,3 +381,35 @@ def extract_scores(response):
         precision,
         f1_score
     ]
+
+def execution_control():
+    # Handle user input and return whether to continue the loop
+    user_input = input().lower()  # Convert to lowercase for case-insensitive comparison
+    if user_input == "z":
+        return False  # Exit the loop
+    elif user_input == "":
+        return True  # Continue the loop
+    else:
+        print("Invalid input. Press Enter or 'z'")
+        return True  # Invalid input, continue the loop
+    
+
+csv_file_path = '../data/student_tutor_sim.csv'
+headers = [
+    'student_profile', 'chat_history', 'tutor_summary', 'student_summary',
+    'engagement_level', 'knowledge_level', 'expressiveness_level',
+    'pacing_style', 'confidence_level', 'conversation_counter',
+    'student_response_avg','tutor_response_avg',
+    'LLM_Precision_Tutor', 'LLM_Recall_Tutor','LLM_score_Tutor', 
+    'BERT_Precision_Tutor', 'BERT_Recall_Tutor', 'BERT_score_Tutor',
+    'LLM_Precision_Student', 'LLM_Recall_Student','LLM_score_Student', 
+    'BERT_Precision_Student', 'BERT_Recall_Student', 'BERT_score_Student'
+]
+
+def write_data(data):
+    csv_file = open(csv_file_path, mode='a', newline='', encoding='utf-8')
+    writer = csv.writer(csv_file)
+    if os.path.exists(csv_file_path):
+        writer.writerow(headers)
+    writer.writerow(data)
+    csv_file.close()

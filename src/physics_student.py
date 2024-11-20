@@ -20,7 +20,7 @@ class StudentProfile:
         return f"{self.knowledge_level}_{self.engagement_style}_{self.confidence}_{self.expressiveness}_{self.pacing}"
 
 class PhysicsStudentSimulator:
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, student_profile: StudentProfile, physics_problem: str):
         # Model parameters
         self.model = "claude-3-5-sonnet-20241022" # Latest model as of 2024-11-21
         self.temperature = 0
@@ -29,6 +29,8 @@ class PhysicsStudentSimulator:
         self.client = anthropic.Client(api_key=api_key)
         self.base_prompt = utils.student_system_prompt
         self.conversation_history = [{"role": "system", "content": self.base_prompt}]
+        self.profile = student_profile
+        self.physics_problem = physics_problem
         
     
     # Converts a student class to string to feed into the LLM
@@ -49,14 +51,11 @@ class PhysicsStudentSimulator:
         </currentProfile>
         """
 
-    def generate_response(self, 
-                         profile: StudentProfile, 
-                         physics_problem: str,
-                         tutor_question: str) -> str:
+    def generate_response(self, tutor_question: str) -> str:
         """Generate a student response to a physics problem or tutor question."""
         
         # Construct the complete prompt
-        profile_xml = self.create_profile_xml(profile)
+        profile_xml = self.create_profile_xml(self.profile)
         self.conversation_history.append({"role":"user", "content": tutor_question})
 
         prompt = f"""
@@ -64,7 +63,7 @@ class PhysicsStudentSimulator:
         {profile_xml}
 
         Physics Problem:
-        {physics_problem}
+        {self.physics_problem}
 
         {self.conversation_history}
 
