@@ -1,17 +1,23 @@
 import anthropic
 import utils
+import itertools
+import random
 
 from dataclasses import dataclass
 from typing import List
 
 @dataclass
 class StudentProfile:
-    knowledge_level: int  # 1-5
+    knowledge_level: str  # 1-5
     engagement_style: str  # curious, reserved, interactive, challengeSeeking
     misconceptions: List[str]
     confidence: str  # low, medium, high
     expressiveness: str  # minimal, moderate, detailed
     pacing: str  # slow, moderate, quick
+
+    def __str__(self):
+        # Format the string as desired
+        return f"{self.knowledge_level}_{self.engagement_style}_{self.confidence}_{self.expressiveness}_{self.pacing}"
 
 class PhysicsStudentSimulator:
     def __init__(self, api_key: str):
@@ -80,3 +86,34 @@ class PhysicsStudentSimulator:
         self.conversation_history.append({"role": "assistant", "content": response})
         
         return f"{response.content[0].text}"
+    
+def style_generate(style, styles):
+    return str(style) + "-" + styles[style]
+
+def profile_gen():
+    combinations = list(itertools.product(
+        utils.student_engagement_styles.items(),
+        utils.student_knowledge_levels.items(),
+        utils.student_expressiveness_levels.items(),
+        utils.student_pacing_styles.items(),
+        utils.student_confidence_levels.items()
+    ))
+    
+    (
+        (eng_level, eng_desc),
+        (k_level, k_desc),
+        (exp_level, exp_desc),
+        (pac_level, pac_desc),
+        (conf_level, conf_desc)
+    ) = random.choice(combinations)
+
+    return StudentProfile(
+            knowledge_level=style_generate(k_level, utils.student_knowledge_levels),
+            engagement_style=style_generate(eng_level, utils.student_engagement_styles),
+            misconceptions=[
+                "Confusing static equilibrium"
+            ],
+            confidence=style_generate(conf_level, utils.student_confidence_levels),
+            expressiveness=style_generate(exp_level, utils.student_expressiveness_levels),
+            pacing=style_generate(pac_level, utils.student_pacing_styles)
+        )
