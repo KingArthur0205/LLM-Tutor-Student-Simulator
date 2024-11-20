@@ -8,19 +8,20 @@ from typing import List
 
 @dataclass
 class StudentProfile:
-    knowledge_level: str  # 1-5
-    engagement_style: str  # curious, reserved, interactive, challengeSeeking
-    misconceptions: List[str]
-    confidence: str  # low, medium, high
-    expressiveness: str  # minimal, moderate, detailed
-    pacing: str  # slow, moderate, quick
+    knowledge_level: str  = None # 1-5
+    engagement_style: str = None # curious, reserved, interactive, challengeSeeking
+    misconceptions: List[str] = None
+    confidence: str  = None# low, medium, high
+    expressiveness: str  = None# minimal, moderate, detailed
+    pacing: str  = None# slow, moderate, quick
+    traits: str = None
 
     def __str__(self):
         # Format the string as desired
         return f"{self.knowledge_level}_{self.engagement_style}_{self.confidence}_{self.expressiveness}_{self.pacing}"
 
 class PhysicsStudentSimulator:
-    def __init__(self, api_key: str, student_profile: StudentProfile, physics_problem: str):
+    def __init__(self, api_key: str, student_profile: StudentProfile, physics_problem: str, if_simplified: bool = False):
         # Model parameters
         self.model = "claude-3-5-sonnet-20241022" # Latest model as of 2024-11-21
         self.temperature = 0
@@ -31,10 +32,19 @@ class PhysicsStudentSimulator:
         self.conversation_history = [{"role": "system", "content": self.base_prompt}]
         self.profile = student_profile
         self.physics_problem = physics_problem
+        self.if_simplified = if_simplified
         
     
     # Converts a student class to string to feed into the LLM
     def create_profile_xml(self, profile: StudentProfile) -> str:
+        if self.if_simplified:
+            return f"""
+                <studentConfig>
+                    <knowledgeLevel>{profile.knowledge_level}</knowledgeLevel>
+                    <engagementStyle>{profile.engagement_style}</engagementStyle>
+                    <traits>{profile.traits}</traits>
+                </studentConfig>
+            """
         """Convert student profile to XML format."""
         return f"""
         <currentProfile>
@@ -116,3 +126,9 @@ def profile_gen():
             expressiveness=style_generate(exp_level, utils.student_expressiveness_levels),
             pacing=style_generate(pac_level, utils.student_pacing_styles)
         )
+
+def simp_profile_gen(knowledge_level, engagement_style):
+    return StudentProfile(
+        knowledge_level=style_generate(knowledge_level, utils.student_knowledge_levels),
+        engagement_style=style_generate(engagement_style, utils.student_engagement_styles),
+        traits=style_generate(engagement_style, utils.student_traits))

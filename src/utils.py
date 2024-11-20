@@ -2,6 +2,47 @@ import re
 import csv
 import os
 
+simplified_system_prompt = """
+<studentConfig>
+    <knowledgeLevel>
+        <!-- 1: Limited physics knowledge (basic concepts only) -->
+        <!-- 5: Strong physics knowledge (mechanics, conservation laws, Newton's laws) -->
+        <!-- Use 1-2 for low knowledge, 4-5 for high knowledge -->
+    </knowledgeLevel>
+
+    <engagementStyle>
+        <!-- highMotivation: Puts in significant effort, seeks clarification, eager to learn -->
+        <!-- lowMotivation: Minimal effort, prefers direct answers, limited engagement -->
+    </engagementStyle>
+
+    <traits>
+        <!-- For highMotivation students -->
+        <!-- - Seeks clarification frequently -->
+        <!-- - Processes questions thoroughly -->
+        <!-- - Willing to work through detailed explanations -->
+        
+        <!-- For lowMotivation students -->
+        <!-- - Prefers quick answers -->
+        <!-- - Minimal effort in responses -->
+        <!-- - Avoids detailed explanations -->
+    </ptraits>
+</studentConfig>
+
+<instruction>
+    1. Maintain consistent personality and knowledge level throughout the conversation
+
+    2. Show gradual learning progress in extended interactions
+
+    3. Express appropriate misconceptions based on the topic
+
+    4. Match mathematical ability to knowledge level
+
+    5. Always ask for a summary of the methodologies from the tutor after they suggest using the approach for similar problems. Then, STOP asking further questions.
+
+    6. Just give thestudent's response in text. Do not give the actions of students. 
+</instruction>
+"""
+
 student_system_prompt = """
 You are a physics student simulator that generates realistic responses to a Socratic physics tutor. Your responses should reflect the student profile defined in the configuration tags and demonstrate authentic learning behaviors. Please maintain this persona throughout the conversation.
 
@@ -215,15 +256,17 @@ student_engagement_styles = {
    "digitalNative": "Comfortable with technology, often prefers digital learning tools",
    "visualLearner": "Prefers information presented visually, such as charts or diagrams",
    "auditoryLearner": "Absorbs information better through listening and discussion",
-   "kinestheticLearner": "Learns best through hands-on activities and physical interaction"
+   "kinestheticLearner": "Learns best through hands-on activities and physical interaction",
+   "highMotivation": "Puts in significant effort, seeks clarification, eager to learn",
+   "lowMotivation": "Minimal effort, prefers direct answers, limited engagement"
 }
 
 student_knowledge_levels = {
-   1: "Novice - Minimal physics knowledge",
-   2: "Beginner - Basic concepts understood",
-   3: "Intermediate - Working knowledge", 
-   4: "Advanced - Strong conceptual grasp",
-   5: "Expert - Deep understanding"
+   '1': "Novice - Minimal physics knowledge. No prior Physics course taken.",
+   '2': "Beginner - Basic concepts understood",
+   '3': "Intermediate - Working knowledge", 
+   '4': "Advanced - Strong conceptual grasp",
+   '5': "Expert - Deep understanding. Took AP Physics Mechanics and Electricity"
 }
 
 student_expressiveness_levels = {
@@ -248,6 +291,19 @@ student_confidence_levels = {
    "high": "Confident, willing to take risks and offer opinions freely",
    "uncertain": "Often doubts their abilities or knowledge, may need reassurance",
    "overconfident": "Demonstrates excessive self-assurance, sometimes without full understanding"
+}
+
+student_traits = {
+    "highMotivation": """
+    1. Seek clarification frequently. 
+    2. Process questions thoroughly.
+    3. Willing to work through detailed explanations.
+    """,
+    "lowMotivation": """
+    1. Prefers quick answers.
+    2. Minimal efforts in responding.
+    3. Avoids detailed explanations.
+    """
 }
 
 tutor_system_prompt = """
@@ -399,7 +455,7 @@ headers = [
     'student_profile', 'chat_history', 'tutor_summary', 'student_summary',
     'engagement_level', 'knowledge_level', 'expressiveness_level',
     'pacing_style', 'confidence_level', 'conversation_counter',
-    'student_response_avg','tutor_response_avg',
+    'tutor_response_avg', 'student_response_avg',
     'LLM_Precision_Tutor', 'LLM_Recall_Tutor','LLM_score_Tutor', 
     'BERT_Precision_Tutor', 'BERT_Recall_Tutor', 'BERT_score_Tutor',
     'LLM_Precision_Student', 'LLM_Recall_Student','LLM_score_Student', 
@@ -407,9 +463,10 @@ headers = [
 ]
 
 def write_data(data):
-    csv_file = open(csv_file_path, mode='a', newline='', encoding='utf-8')
-    writer = csv.writer(csv_file)
-    if os.path.exists(csv_file_path):
-        writer.writerow(headers)
-    writer.writerow(data)
-    csv_file.close()
+    file_exists = os.path.exists(csv_file_path)
+
+    with open(csv_file_path, mode='a', newline='', encoding='utf-8') as csv_file:
+        writer = csv.writer(csv_file)
+        if not file_exists:
+            writer.writerow(headers)
+        writer.writerow(data)

@@ -29,7 +29,7 @@ class GPTEvaluator:
         return utils.extract_scores(llm_response)
     
 def compute_bert_scores(response, prompt):
-    p, r, fscore = score([response], [prompt], lang='en', verbose=True)
+    p, r, fscore = score([response], [prompt], lang='en', verbose=True, model_type='microsoft/deberta-xlarge-mnli')
     return p.item(), r.item(), fscore.item()
 
 def generate_log_row(profile, gpt_evaluator, chat_history, tutor_response, student_response, conversation_counter, tutor_response_len, student_response_len):
