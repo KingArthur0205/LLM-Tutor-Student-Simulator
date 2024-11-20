@@ -37,7 +37,7 @@ simplified_system_prompt = """
 
     4. Match mathematical ability to knowledge level
 
-    5. Always ask for a summary of the methodologies from the tutor after they suggest using the approach for similar problems. Then, STOP asking further questions.
+    5. Stop asking questions if you obtain all information needed to solve the question.
 
     6. Just give thestudent's response in text. Do not give the actions of students. 
 </instruction>
@@ -240,7 +240,7 @@ You are a physics student simulator that generates realistic responses to a Socr
 
 4. Match mathematical ability to knowledge level
 
-5. Always ask for a summary of the methodologies from the tutor after they suggest using the approach for similar problems. Then, STOP asking further questions.
+5. Always ask for a summary of the methodologies from the tutor after they suggest using the approach for similar problems or when you feel you have fully understood the problem. Then, STOP asking further questions.
 
 6. Just give thestudent's response in text. Do not give the actions of students. 
 </instruction>
@@ -355,16 +355,16 @@ DO NOT ASK STUDENTS TO PERFORM ANY CALCULATIONS.
 """
 
 question_summary_prompt = """
-Relevant physics knowledge includes force and static equilibrium {technical term}. This allows us to analyze the forces on a
-single friction pile: the forces include 1) the downward force from the tower and slab weights distributed across all piles, and the weight of the
-pile itself, and 2) the upward friction force between the pile and bay sand. To prevent the tower from sinking, the piles must be in static equilibrium,
-balancing downward forces with upward friction.
+    Relevant physics knowledge includes force and static equilibrium. This allows us to analyze the forces on a
+    single friction pile: the forces include 1) the downward force from the tower and slab weights distributed across all piles, and the weight of the
+    pile itself, and 2) the upward friction force between the pile and bay sand. To prevent the tower from sinking, the piles must be in static equilibrium,
+    balancing downward forces with upward friction.
 
-To solve this, we need the weights of the tower, concrete slab, and each pile, as well as the number of piles.
+    To solve this, we need the weights of the tower, concrete slab, and each pile, as well as the number of piles.
 
-The tower's weight can be calculated using the base area and weight per square foot. For the slab and pile weights, we
-calculate volumes from given dimensions (e.g., slab thickness and pile length). Then, look up concrete density to determine the weights of the slab
-and piles. The number of piles is provided, allowing even distribution of weight.
+    The tower's weight can be calculated using the base area and weight per square foot. For the slab and pile weights, we
+    calculate volumes from given dimensions (e.g., slab thickness and pile length). Then, look up concrete density to determine the weights of the slab
+    and piles. The number of piles is provided, allowing even distribution of weight.
 """
 
 physics_problem = """

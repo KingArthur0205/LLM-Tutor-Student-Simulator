@@ -23,12 +23,12 @@ class StudentProfile:
 class PhysicsStudentSimulator:
     def __init__(self, api_key: str, student_profile: StudentProfile, physics_problem: str, if_simplified: bool = False):
         # Model parameters
-        self.model = "claude-3-5-sonnet-20241022" # Latest model as of 2024-11-21
+        self.model = "claude-3-5-haiku-20241022" # Latest model as of 2024-11-21
         self.temperature = 0
         self.max_token = 1000
 
         self.client = anthropic.Client(api_key=api_key)
-        self.base_prompt = utils.student_system_prompt
+        self.base_prompt = utils.student_system_prompt if not if_simplified else utils.simplified_system_prompt
         self.conversation_history = [{"role": "system", "content": self.base_prompt}]
         self.profile = student_profile
         self.physics_problem = physics_problem

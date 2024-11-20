@@ -40,8 +40,6 @@ def main():
 
 
             conversation_counter += 1
-            print(len(tutor_response))
-            print(len(student_response))
             tutor_response_len += len(tutor_response)
             student_response_len += len(student_response)
             if not utils.execution_control():
@@ -51,9 +49,11 @@ def main():
     except KeyboardInterrupt:
         print("\nProgram terminated by user")
 
-    student_response = claude_student_simulator.generate_response(tutor_question="Can you provide a concise summary of the key knowledge and insights you've gained so far to demonstrate your understanding and progress in this study?")
-    print("Student Summary: ", student_response)
-    row = generate_log_row(profile,gpt_evaluator, gpt_tutor_simulator.get_conversation_history(), tutor_response, student_response, conversation_counter, tutor_response_len, student_response_len)
+    tutor_summary = gpt_tutor_simulator.generate_response(student_response="Can you provide a concise summary of the key steps you've given to solve the question?")
+    student_summary = claude_student_simulator.generate_response(tutor_question="Can you provide a concise summary of the key steps you've learned to solve the question?")
+    print("Student Summary: ", student_summary)
+    print("Tutor Summary: ", tutor_summary)
+    row = generate_log_row(profile,gpt_evaluator, gpt_tutor_simulator.get_conversation_history(), tutor_summary, student_summary, conversation_counter, tutor_response_len, student_response_len)
     utils.write_data(row) # Record the data into a csv file in the data directory
 
 if __name__ == "__main__":
