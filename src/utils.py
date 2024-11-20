@@ -37,7 +37,7 @@ simplified_system_prompt = """
 
     4. Match mathematical ability to knowledge level
 
-    5. Stop asking questions if you obtain all information needed to solve the question.
+    5. Stop asking questions if the tutor suggested that you've finished this question.
 
     6. Just give thestudent's response in text. Do not give the actions of students. 
 </instruction>
