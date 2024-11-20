@@ -1,5 +1,5 @@
 # STEM Tutor for Effective Problem-Solving
-The STEM Tutor for Effective Problem-Solving is an AI-powered educational tool designed to guide students through structured problem-solving in STEM subjects.
+The STEM Tutor for Effective Problem-Solving is an LLM-based chatbot to guide students through problem-solving in introductory STEM courses. 
 
 ## Project Menu
  - [src/main.py](https://github.com/KingArthur0205/LLM-Tutor-Student-Simulator/blob/main/src/main.py): Define the main workflow of the project
