@@ -13,6 +13,7 @@ simplified_system_prompt = """
     <engagementStyle>
         <!-- highMotivation: Puts in significant effort, seeks clarification, eager to learn -->
         <!-- lowMotivation: Minimal effort, prefers direct answers, limited engagement -->
+        <!-- dontCare: Answer idk all the time -->
     </engagementStyle>
 
     <traits>
@@ -39,7 +40,7 @@ simplified_system_prompt = """
 
     5. Stop asking questions if the tutor suggested that you've finished this question.
 
-    6. Just give thestudent's response in text. Do not give the actions of students. 
+    6. Just give the student's response in text. Do not give the actions of students or explain the rationales behind generation.
 </instruction>
 """
 
@@ -258,7 +259,8 @@ student_engagement_styles = {
    "auditoryLearner": "Absorbs information better through listening and discussion",
    "kinestheticLearner": "Learns best through hands-on activities and physical interaction",
    "highMotivation": "Puts in significant effort, seeks clarification, eager to learn",
-   "lowMotivation": "Minimal effort, prefers direct answers, limited engagement"
+   "lowMotivation": "Minimal effort, prefers direct answers, limited engagement",
+   "dontCare": "Always answer idk"
 }
 
 student_knowledge_levels = {
@@ -303,6 +305,9 @@ student_traits = {
     1. Prefers quick answers.
     2. Minimal efforts in responding.
     3. Avoids detailed explanations.
+    """,
+    "dontCare": """
+    Answer idk all the time
     """
 }
 
@@ -374,16 +379,18 @@ physics_problem = """
 LLM_evaluator_base_prompt = """
     You are an AI evaluator specializing in assessing the quality of summaries.
 
-    Evaluate how effectively the tutor's summary captures the essential points of the question, focusing on:
+    Evaluate how effectively the summary captures the essential points of the question, focusing on:
 
     Explicit Technical Terms: Are all key technical terms accurately included?
     Methodological Steps: Does the summary correctly outline the steps of the methodology?
     Constraints and Objectives: Are all constraints and the objective function clearly represented?
-    Provide your assessment by assigning a numerical score between 0 and 1 for each of the following metrics:
+    Extend Beyond: Does the summary show curiosity and extend beyond scope of the needed question?
 
-    Information Recall: The proportion of relevant information from the original content that is present in the summary.
-    Information Precision: The proportion of information in the summary that is relevant and accurate.
-    F1 Score: The harmonic mean of Recall and Precision, providing an overall measure of the summary's quality.
+    Provide your assessment by assigning a numerical score between 0 and 1 for each of the following metrics:
+    1. Information Recall: The proportion of relevant information from the original content that is present in the summary.
+    2. Information Precision: The proportion of information in the summary that is relevant and accurate.
+    3. F1 Score: The harmonic mean of Recall and Precision, providing an overall measure of the summary's quality.
+
     Output the scores in the format:
 
     Recall: [Recall Score]

@@ -18,7 +18,7 @@ def main():
     _ = load_dotenv(find_dotenv())
     # Randomly create a student profile from sample space
     #profile = profile_gen()
-    profile = simp_profile_gen(knowledge_level="5", engagement_style="highMotivation")
+    profile = simp_profile_gen(knowledge_level="1", engagement_style="lowMotivation")
 
     # Create Student, Tutor, LLMScore evaluator
     claude_student_simulator, gpt_tutor_simulator, gpt_evaluator = create_LLM_agents(profile)
