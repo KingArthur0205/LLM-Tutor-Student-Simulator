@@ -4,27 +4,17 @@ import seaborn as sns
 import numpy as np
 
 def plot_llm_scores_bar(df, drop_columns=["tutor_summary", "student_summary", "conversation_counter", "tutor_response_avg", "student_response_avg",
-                      "LLM_Precision_Tutor", "LLM_Recall_Tutor"]):
-    """
-    Create subplots for scores by student profile and score type.
-
-    Parameters:
-        df (pd.DataFrame): The input DataFrame containing scores and student profiles.
-        drop_columns (list): List of column names to drop from the DataFrame before processing.
-    """
-    # Step 1: Drop unnecessary columns
+                      "LLM_Precision_Tutor", "LLM_Recall_Tutor", "BERT_Precision_Tutor", "BERT_Recall_Tutor"]):
     df = df.drop(columns=drop_columns)
-
-    # Step 2: Reshape and aggregate data
     df = df.melt(id_vars="student_profile", var_name="Score_Type", value_name="Score")
-    aggregated_df = df.groupby(["student_profile", "Score_Type"], as_index=False)["Score"].mean()
+    aggregated_df = df.groupby(["student_profile", "Score_Type"], as_index=False).agg(
+        mean_score=("Score", "mean"),
+        sem_score=("Score", lambda x: x.std() / np.sqrt(len(x)))  # Calculate standard error
+    )
 
-    # Unique values for subplots
     student_profiles = aggregated_df["student_profile"].unique()
     score_types = aggregated_df["Score_Type"].unique()
-    width = 0.2  # Width of the bars
-
-    # Step 3: Create subplots
+    width = 0.5  # Width of the bars
     fig, axes = plt.subplots(nrows=1, ncols=len(student_profiles), figsize=(20, 6), sharey=True)
 
     # Ensure axes is always iterable
@@ -37,13 +27,16 @@ def plot_llm_scores_bar(df, drop_columns=["tutor_summary", "student_summary", "c
 
         # X positions for bars
         x = np.arange(len(score_types))
-        scores = subset["Score"].values
+        mean_scores = subset["mean_score"].values
+        sem_scores = subset["sem_score"].values
 
-        # Plot grouped bars
+        # Plot grouped bars with error bars
         ax.bar(
             x,
-            scores,
+            mean_scores,
             width,
+            yerr=sem_scores,  # Add standard error as error bars
+            capsize=5,  # Error bar cap size
             color=["lightblue", "orange", "green", "red", "purple", "brown"][:len(score_types)],
             alpha=0.8
         )
@@ -56,7 +49,7 @@ def plot_llm_scores_bar(df, drop_columns=["tutor_summary", "student_summary", "c
         ax.grid(axis="y", linestyle="--", alpha=0.6)
 
     # Add global labels and legend
-    fig.suptitle("Scores by Student Profile and Type", fontsize=16)
+    fig.suptitle("Scores by Student Profile and Type with Standard Error", fontsize=16)
     fig.text(0.5, 0.02, "Score Type", ha="center", fontsize=12)
     fig.text(0.04, 0.5, "Score", va="center", rotation="vertical", fontsize=12)
 
@@ -65,15 +58,6 @@ def plot_llm_scores_bar(df, drop_columns=["tutor_summary", "student_summary", "c
     plt.show()
 
 def plot_llm_scores(df, score_column="LLM_score_Student", profile_column="student_profile"):
-    """
-    Plot LLM scores colored by student profile with customization.
-
-    Parameters:
-        df (pd.DataFrame): The DataFrame containing the data.
-        score_column (str): The column name for the scores (y-axis).
-        profile_column (str): The column name for the student profiles (hue).
-    """
-    # Set a color-blind friendly palette
     sns.set_palette("colorblind")
     
     # Create the plot
@@ -102,6 +86,37 @@ def plot_llm_scores(df, score_column="LLM_score_Student", profile_column="studen
     plt.tight_layout()
     plt.show()
 
+def plot_heatmap(df):
+    columns_to_keep = [
+    "conversation_counter", "tutor_response_avg", "student_response_avg",
+    "LLM_score_Tutor",
+    "BERT_score_Tutor",
+    "BERT_score_Student", "LLM_score_Student"
+    ]
+
+    # Filter the DataFrame to keep only the specified columns
+    df_filtered = df[columns_to_keep]
+
+    # Calculate the Pearson correlation
+    correlation_matrix_filtered = df_filtered.corr(method="pearson")
+
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(
+        correlation_matrix_filtered, 
+        annot=True, 
+        cmap="coolwarm", 
+        fmt=".2f", 
+        cbar=True,
+        annot_kws={"size": 10}  # Adjust font size of annotations
+    )
+
+    # Adjust titles and layout to fit better
+    plt.title("Pearson Correlation Heatmap", fontsize=16)
+    plt.xticks(rotation=45, ha="right", fontsize=10)  # Rotate x-axis labels
+    plt.yticks(fontsize=10)  # Adjust y-axis label font size
+    plt.tight_layout()  # Automatically adjust layout to avoid text cutoff
+    plt.show()
+
 
 df = pd.read_csv("../data/cleaned_df.csv")
 
@@ -110,4 +125,4 @@ df = pd.read_csv("../data/cleaned_df.csv")
 #plot_llm_scores(df, score_column="BERT_score_Tutor", profile_column="student_profile")
 #plot_llm_scores(df, score_column="BERT_score_Student", profile_column="student_profile")
 #plot_llm_scores_bar(df)
-
+#plot_heatmap(df)
